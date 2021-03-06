@@ -28,11 +28,19 @@ def mytext(message):
             cur.execute(f"SELECT * FROM timetable WHERE groupnum == '{message.text}'")
             result = cur.fetchall()
             for i in range(len(result)):
-                for j in range(2, len(result[i])):
-                    answer+=str(result[i][j])
+                for j in range(2, len(result[i])-1):
+                    if (j==2):
+                        answer +="*" + str(result[i][j])+"*" + "\n" #Doing *bold* font-style in MarkDown
+                    elif (j==3):
+                        classes=str(result[i][j]).split(", ") #Split line with classes
+                        place=str(result[i][j+1]).split("; ") #Split line with place
+                        for k in range(len(place)):
+                            classes[k] += " ("+ place[k] + ")" #Connect stings
+                            answer += classes[k] + "\n"
+                answer+="\n"
             bot.send_message(message.chat.id,
                              answer
-                             .format(message.from_user, bot.get_me()), parse_mode="html")
+                             .format(message.from_user, bot.get_me()), parse_mode='Markdown')
             connect.close()
         else:
             bot.send_message(message.chat.id,
