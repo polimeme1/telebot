@@ -20,17 +20,24 @@ def helpme(message):
 
 @bot.message_handler(content_types = ["text"])
 def mytext(message):
-    if (int(message.text) >= 1 and int(message.text) <= 10):
-        connect = create_connection(r"D:\projects\bot\timetable.db")
-        cur = connect.cursor()
-        cur.execute(f"SELECT * FROM timetable WHERE groupnum == '{message.text}'")  # вывести день, пары и аудитории
-        result = cur.fetchall()
-        # parse your string and check what button was pressed
-        # create var with request from DB
-        bot.send_message(message.chat.id,result, parse_mode="html")
-        # bot.send_message(message.chat.id, *your request from DB*
-        # .format(message.from_user, bot.get_me()), parse_mode = "html")
-        connect.close()
+    if (message.text.isdigit()):
+        if (int(message.text) >= 1 and int(message.text) <= 10):
+            answer=""
+            connect = create_connection(r"./timetable.db")
+            cur = connect.cursor()
+            cur.execute(f"SELECT * FROM timetable WHERE groupnum == '{message.text}'")
+            result = cur.fetchall()
+            for i in range(len(result)):
+                for j in range(2, len(result[i])):
+                    answer+=str(result[i][j])
+            bot.send_message(message.chat.id,
+                             answer
+                             .format(message.from_user, bot.get_me()), parse_mode="html")
+            connect.close()
+        else:
+            bot.send_message(message.chat.id,
+                             "Такой группы нет!"
+                             .format(message.from_user, bot.get_me()), parse_mode="html")
     else:
         bot.send_message(message.chat.id, "Пока что я не умею общаться на другие темы :( Но скоро это станет возможным!"
         .format(message.from_user, bot.get_me()), parse_mode = "html")
